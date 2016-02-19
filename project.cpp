@@ -14,6 +14,8 @@ struct firm {
     vector<double> Backorder;
     vector<double> Order;
     vector<double> Forecast;
+    vector<double> Received;
+    vecotr<double> Sent;
     queue<double> Ord_Not_Rec;
 };
 double queue_sum(queue<double> &Ord_Not_Rec){
@@ -65,13 +67,14 @@ double ES1(vector<double> D,vector<double> IP, double alpha, vector<double> &F){
 int main(){
     int i=0;
     int j=0;
+    double alpha=0.0;
     struct firm M,D,W,R;//struct for each firm
     fstream fM,fD,fW,fR;//Declared file objects for each firm.
     fM.open("manufacturer.txt",ios::app);
     fD.open("distributor.txt",ios::app);
     fW.open("wholesaler.txt",ios::app);
     fR.open("retailer.txt",ios::app);
-
+    while(alpha<=1.0){
     //Initializations for each firm here.
     M.IP.push_back(10+10*L);//IP at time zero.
     D.IP.push_back(10+10*L);
@@ -93,15 +96,26 @@ int main(){
     D.Forecast.push_back(10);
     W.Forecast.push_back(10);
     R.Forecast.push_back(10);
+    M.Backorder.push_back(0);//Initial Backorder at time one
+    D.Backorder.push_back(0);
+    W.Backorder.push_back(0);
+    R.Backorder.push_back(0);
     R.Demand.push_back(10);
     R.Demand.push_back(10);//D(1) initialized at 10, consistend with end consumer order of 10 at time zero.
     i=0;
+    while(i<=2001){
+       R.Demand.push_back(9);
+       i++;
+       R.Demand.push_back(12);
+       i++;
+       R.Demand.push_back(8);
+       i++;
+       R.Demand.push_back(11);
+       i++;       
+    }
+    i=0;
     while(i<=L-1 && L!=0){
-        M.Order.push_back(10);//Orders coming after zeroth time
-        D.Order.push_back(10);
-        W.Order.push_back(10);
-        R.Order.push_back(10);
-         
+        M.Ord_Not_Rec.push(10)                
         i++;
     }
     //Initializations end.
@@ -109,8 +123,8 @@ int main(){
 
 
 
-
-
+        alpha+=0.01;
+    }
     /*/Testing block start
     queue <double> Q;
     Q.push(9);
