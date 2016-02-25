@@ -1,6 +1,3 @@
-//ES1 ordering, two functions for order times because of inconsistency in lead time and post lead time indices.
-//Code outputs order standard deviations, change file output to inventory or other variables if those outputs are required.
-//copy of this code available on git hub, use handle:MahadevanVaidyanathan92
 #include<iostream>
 #include<vector>
 #include<fstream>
@@ -9,7 +6,7 @@
 #include<algorithm>
 #include<numeric>
 using namespace std;
-int L=4;
+int L=2;
 struct firm {
     vector<double> Demand;
     vector<double> OHI;
@@ -19,7 +16,6 @@ struct firm {
     vector<double> Forecast;
     vector<double> Received;
     vector<double> Sent;
-    vector<double> Totalinv;
     queue<double> Ord_Not_Rec;
 };
 double queue_sum(queue<double> &Ord_Not_Rec){
@@ -63,7 +59,7 @@ double stddev(vector<double> V){
         i++;
     }
     //cout<<"Size of the Vector = "<<V.size()<< endl;
-    MSE=MSE/(V.size()-1001);
+    MSE=MSE/(V.size()-1002);
     MSE=pow(MSE,0.5);
     return MSE;    
 }
@@ -71,24 +67,14 @@ double ES1(vector<double> &D,vector<double> &IP, double alpha, vector<double> &F
     double order=0;
     int i=0;
     // Generate forcast here.
-    F.push_back(((1-alpha)*F[k+1])+(alpha*D[k+1]));// forecast at t+1 generated, and stored because passed by ref.
-    if((L+1)*(F[F.size()-1])-(IP[k+1])>=0)
-        order=((L+1)*F[k+2]-IP[k+1]);
+    F.push_back(((1-alpha)*F[F.size()-1])+(alpha*D[k+1]));// forecast at t+1 generated, and stored because passed by ref.
+    if((L+1)*(F[F.size()-1])-(IP[IP.size()-1])>=0)
+        order=((L+1)*F[F.size()-1]-IP[IP.size()-1]);
     else{
         order=0;}
     return order;//Self explanatory!!
 }
-double ES12(vector<double> &D,vector<double> &IP, double alpha, vector<double> &F,int k){
-    double order=0;
-    int i=0;
-    // Generate forcast here.
-    F.push_back(((1-alpha)*F[k+1])+(alpha*D[k+1]));// forecast at t+1 generated, and stored because passed by ref.
-    if((L+1)*(F[k+2])-(IP[k+1])>=0)
-        order=((L+1)*F[k+2]-IP[k+1]);
-    else{
-        order=0;}
-    return order;//Self explanatory!!
-}
+
 // Function for pushing everytime an order is placed should go here
 int main(){
     int i=0;
@@ -110,14 +96,14 @@ int main(){
     D.OHI.push_back(10);
     W.OHI.push_back(10);
     R.OHI.push_back(10);
-    M.Order.push_back(10);//Order at time zero
-    D.Order.push_back(10);
-    W.Order.push_back(10);
-    R.Order.push_back(10);//Need to push into queue until L.
-    M.Forecast.push_back(0);//Initial Forecast at time zero
-    D.Forecast.push_back(0);
-    W.Forecast.push_back(0);
-    R.Forecast.push_back(0);
+    M.Order.push_back(0);//Order at time zero
+    D.Order.push_back(0);
+    W.Order.push_back(0);
+    R.Order.push_back(0);//Need to push into queue until L.
+    M.Forecast.push_back(10);//Initial Forecast at time zero
+    D.Forecast.push_back(10);
+    W.Forecast.push_back(10);
+    R.Forecast.push_back(10);
     M.Forecast.push_back(10);//Initial Forecast at time one
     D.Forecast.push_back(10);
     W.Forecast.push_back(10);
@@ -126,18 +112,18 @@ int main(){
     D.Backorder.push_back(0);
     W.Backorder.push_back(0);
     R.Backorder.push_back(0);
-    M.Received.push_back(0);//Initial Received at time zero
-    D.Received.push_back(0);
-    W.Received.push_back(0);
-    R.Received.push_back(0);
-    M.Sent.push_back(0);//Initial Sent at time zero
-    D.Sent.push_back(0);
-    W.Sent.push_back(0);
-    R.Sent.push_back(0);
-    R.Demand.push_back(0);
-    M.Demand.push_back(0);
-    D.Demand.push_back(0);
-    W.Demand.push_back(0);
+    M.Received.push_back(10);//Initial Received at time zero
+    D.Received.push_back(10);
+    W.Received.push_back(10);
+    R.Received.push_back(10);
+    M.Sent.push_back(10);//Initial Sent at time zero
+    D.Sent.push_back(10);
+    W.Sent.push_back(10);
+    R.Sent.push_back(10);
+   // R.Demand.push_back(10);
+    M.Demand.push_back(10);
+    D.Demand.push_back(10);
+    W.Demand.push_back(10);
     R.Demand.push_back(10);//D(1) initialized at 10, consistend with end consumer order of 10 at time zero.
     i=0;
     while(i<=2001){
@@ -158,7 +144,7 @@ int main(){
     }
     if(L!=0){
         i=0;
-        while(i<L){M.Ord_Not_Rec.push(10);
+        while(i<=L){M.Ord_Not_Rec.push(10);
             D.Ord_Not_Rec.push(10);
             W.Ord_Not_Rec.push(10);
             R.Ord_Not_Rec.push(10);
@@ -167,7 +153,7 @@ int main(){
     }
     i=0;
 
-    while(i<=L && L!=0 ){
+    while(i<L && L!=0){
         M.Received.push_back(10);
         M.OHI[M.OHI.size()-1]+=M.Received[M.Received.size()-1];//OHI here is modification of last period's, not new elements
         W.Received.push_back(10);
@@ -224,39 +210,37 @@ int main(){
             R.Backorder.push_back(R.Backorder[i]+R.Demand[i+1]-R.OHI[i]);
         }
 
-         M.IP.push_back(M.IP[M.IP.size()-1]+M.Order[M.Order.size()-1]-M.Demand[i+1]);
-         D.IP.push_back(D.IP[D.IP.size()-1]+D.Order[D.Order.size()-1]-D.Demand[i+1]); 
-         W.IP.push_back(W.IP[W.IP.size()-1]+W.Order[W.Order.size()-1]-W.Demand[i+1]);
-         R.IP.push_back(R.IP[R.IP.size()-1]+R.Order[R.Order.size()-1]-R.Demand[i+1]);
-
-
-        
+        //Need to push orders into queue after here
+        pushpop(M.Ord_Not_Rec,M.Order[i]);
+        pushpop(D.Ord_Not_Rec,D.Order[i]);
+        pushpop(W.Ord_Not_Rec,W.Order[i]);
+        pushpop(R.Ord_Not_Rec,R.Order[i]);
+        //Update IP after this
+        M.IP.push_back(M.OHI[M.OHI.size()-1]+queue_sum(M.Ord_Not_Rec));
+        D.IP.push_back(D.OHI[D.OHI.size()-1]+queue_sum(D.Ord_Not_Rec));        
+        W.IP.push_back(W.OHI[W.OHI.size()-1]+queue_sum(W.Ord_Not_Rec));
+        R.IP.push_back(R.OHI[R.OHI.size()-1]+queue_sum(R.Ord_Not_Rec));
+        i=i+1;
         //Generate Orders
         //ES1
         M.Order.push_back(ES1(M.Demand,M.IP,alpha,M.Forecast,i));
         D.Order.push_back(ES1(D.Demand,D.IP,alpha,D.Forecast,i));
         W.Order.push_back(ES1(W.Demand,W.IP,alpha,W.Forecast,i));
         R.Order.push_back(ES1(R.Demand,R.IP,alpha,R.Forecast,i));
-         pushpop(M.Ord_Not_Rec,M.Order[M.Order.size()-1]);
-        pushpop(D.Ord_Not_Rec,D.Order[D.Order.size()-1]);
-        pushpop(W.Ord_Not_Rec,W.Order[W.Order.size()-1]);
-        pushpop(R.Ord_Not_Rec,R.Order[D.Order.size()-1]);
-        i++; 
+         
     }
-    
     while(i<=2001){//i is already at t=L, now main transactions start
-        M.Received.push_back(M.Order[i-L+1]);
-        M.OHI[i]+=M.Received[M.Received.size()-1];
-        D.Received.push_back(M.Sent[i-L+1]);
-        D.OHI[i]+=D.Received[D.Received.size()-1];
-        W.Received.push_back(D.Sent[i-L+1]);
-        W.OHI[i]+=W.Received[W.Received.size()-1];
-        R.Received.push_back(W.Sent[i-L+1]);
-        R.OHI[i]+=R.Received[R.Received.size()-1];
+        M.Received.push_back(M.Order[i-L]);
+        M.OHI[M.OHI.size()-1]+=M.Received[M.Received.size()-1];
+        D.Received.push_back(M.Sent[i-L]);
+        D.OHI[D.OHI.size()-1]+=D.Received[D.Received.size()-1];
+        W.Received.push_back(D.Sent[i-L]);
+        W.OHI[W.OHI.size()-1]+=W.Received[W.Received.size()-1];
+        R.Received.push_back(W.Sent[i-L]);
+        R.OHI[R.OHI.size()-1]+=R.Received[R.Received.size()-1];
         M.Demand.push_back(D.Order[D.Order.size()-1]);
         D.Demand.push_back(W.Order[W.Order.size()-1]);
         W.Demand.push_back(R.Order[R.Order.size()-1]);
-        
         if(M.OHI[M.OHI.size()-1]>=(M.Demand[M.Demand.size()-1]+M.Backorder[M.Backorder.size()-1])){
             M.Sent.push_back(M.Demand[M.Demand.size()-1]+M.Backorder[M.Backorder.size()-1]);
             M.OHI.push_back(M.OHI[i]-M.Demand[i+1]-M.Backorder[i]);
@@ -265,12 +249,12 @@ int main(){
         else{
             M.Sent.push_back(M.OHI[i]);
             M.OHI.push_back(0);
-            M.Backorder.push_back(M.Backorder[i]+M.Demand[i+1]-M.OHI[i]);
+            M.Backorder.push_back(M.Backorder[i]+M.Demand[i]-M.OHI[i]);
         }
         //Distributor will send goods after this
-        if(D.OHI[i]>=(D.Demand[i+1]+D.Backorder[i])){
-            D.Sent.push_back(D.Demand[i+1]+D.Backorder[i]);
-            D.OHI.push_back(D.OHI[i]-D.Demand[i+1]-D.Backorder[i]);
+        if(D.OHI[i]>=(D.Demand[i]+D.Backorder[i])){
+            D.Sent.push_back(D.Demand[i]+D.Backorder[i]);
+            D.OHI.push_back(D.OHI[i]-D.Demand[i]-D.Backorder[i]);
             D.Backorder.push_back(0);
         }
         else{
@@ -279,8 +263,8 @@ int main(){
             D.Backorder.push_back(D.Backorder[i]+D.Demand[i+1]-D.OHI[i]);
         }
         //Wholesaler will send goods after this.
-       if(W.OHI[i]>=(W.Demand[i+1]+W.Backorder[i])){
-            W.Sent.push_back(W.Demand[i+1]+W.Backorder[i]);
+       if(W.OHI[i]>=(W.Demand[i]+W.Backorder[i])){
+            W.Sent.push_back(W.Demand[i]+W.Backorder[i]);
             W.OHI.push_back(W.OHI[i]-W.Demand[i+1]-W.Backorder[i]);
             W.Backorder.push_back(0);
         }
@@ -291,52 +275,59 @@ int main(){
         }
         //Finally, Retailer
         if(R.OHI[i]>=(R.Demand[i+1]+R.Backorder[i])){
-            R.Sent.push_back(R.Demand[i+1]+R.Backorder[i]);
+            R.Sent.push_back(R.Demand[i]+R.Backorder[i]);
             R.OHI.push_back(R.OHI[i]-R.Demand[i+1]-R.Backorder[i]);
             R.Backorder.push_back(0);
         }
         else{
             R.Sent.push_back(R.OHI[i]);
             R.OHI.push_back(0);
-            R.Backorder.push_back(R.Backorder[R.Backorder.size()-1]+R.Demand[i+1]-R.OHI[i]);
+            R.Backorder.push_back(R.Backorder[i]+R.Demand[i+1]-R.OHI[i]);
         }
 
-       //Generate Orders
+        //Push and pop
+        
+        pushpop(M.Ord_Not_Rec,M.Order[M.Order.size()-1]);
+        pushpop(D.Ord_Not_Rec,D.Order[D.Order.size()-1]);
+        pushpop(W.Ord_Not_Rec,W.Order[W.Order.size()-1]);
+        pushpop(R.Ord_Not_Rec,R.Order[R.Order.size()-1]);
+        
+        //Update IP after this
+        M.IP.push_back(M.OHI[M.OHI.size()-1]+queue_sum(M.Ord_Not_Rec));
+        D.IP.push_back(D.OHI[D.OHI.size()-1]+queue_sum(D.Ord_Not_Rec));        
+        W.IP.push_back(W.OHI[W.OHI.size()-1]+queue_sum(W.Ord_Not_Rec));
+        R.IP.push_back(R.OHI[R.OHI.size()-1]+queue_sum(R.Ord_Not_Rec));
+        //Generate Orders
         //ES1
-
-         M.IP.push_back(M.IP[M.IP.size()-1]+M.Order[M.Order.size()-1]-M.Demand[i+1]);
-         D.IP.push_back(D.IP[D.IP.size()-1]+D.Order[D.Order.size()-1]-D.Demand[i+1]); 
-         W.IP.push_back(W.IP[W.IP.size()-1]+W.Order[W.Order.size()-1]-W.Demand[i+1]);
-         R.IP.push_back(R.IP[R.IP.size()-1]+R.Order[R.Order.size()-1]-R.Demand[i+1]);
-
-
-        M.Order.push_back(ES12(M.Demand,M.IP,alpha,M.Forecast,i));
-        D.Order.push_back(ES12(D.Demand,D.IP,alpha,D.Forecast,i));
-        W.Order.push_back(ES12(W.Demand,W.IP,alpha,W.Forecast,i));
-        R.Order.push_back(ES12(R.Demand,R.IP,alpha,R.Forecast,i));        
-       i++;
+        M.Order.push_back(ES1(M.Demand,M.IP,alpha,M.Forecast,i));
+        D.Order.push_back(ES1(D.Demand,D.IP,alpha,D.Forecast,i));
+        W.Order.push_back(ES1(W.Demand,W.IP,alpha,W.Forecast,i));
+        R.Order.push_back(ES1(R.Demand,R.IP,alpha,R.Forecast,i));        
+        i++;
     }
-//   int l=7; 
-//        cout<<"Demand ="<<R.Demand[l]<<", Order ="<<R.Order[l]<<", Received = "<<R.Received[l]<<", IP = "<<R.IP[l]<<", Forecast ="<<R.Forecast[l]<<", Sent = "<<R.Sent[l]<<", OHI ="<<R.OHI[l]<<endl;
+    
+        cout<<"period prime="<<W.Demand[3]<<", "<<D.Order[1]<<endl;
         fM<<alpha<<"\t";
-        for(int r=0;r<=2000;r++){
-            M.Totalinv.push_back(M.Backorder[r]+M.OHI[r]);
-            D.Totalinv.push_back(D.Backorder[r]+D.OHI[r]);
-            W.Totalinv.push_back(W.OHI[r]+W.Backorder[r]);
-            R.Totalinv.push_back(R.OHI[r]+R.Backorder[r]); 
+        fM<<stddev(M.OHI)<<endl;
+        fD<<stddev(D.OHI)<<endl;
+        fW<<stddev(W.OHI)<<endl;
+        fR<<stddev(R.OHI)<<endl;
+        for(int k=0;k<=M.Order.size()-2;k++){
+        //fM<<M.Order[k]<<endl;
+        //fD<<D.Order[k]<<endl;
+        //fW<<W.Order[k]<<endl;
+        //fR<<R.Order[k]<<endl;
         }
-        fM<<stddev(M.Order)<<endl;
-        fD<<stddev(D.Order)<<endl;
-        fW<<stddev(W.Order)<<endl;
-        fR<<stddev(R.Order)<<endl;
-       alpha+=0.01;
+        alpha+=0.01;
         cout<<"alpha="<<alpha<<endl;
         j=0;
         while(!R.Ord_Not_Rec.empty())R.Ord_Not_Rec.pop();
         while(!M.Ord_Not_Rec.empty())M.Ord_Not_Rec.pop();
         while(!D.Ord_Not_Rec.empty())D.Ord_Not_Rec.pop();
         while(!W.Ord_Not_Rec.empty())W.Ord_Not_Rec.pop();
-       M.Demand.clear();
+        //cout<<"OHI="<<M.OHI[9]<<endl<<"std="<<stddev(M.OHI);
+        //Destroy Older Values
+        M.Demand.clear();
         M.OHI.clear();
         M.IP.clear();
         M.Backorder.clear();
@@ -375,6 +366,20 @@ int main(){
         
 
     }
+    /*/Testing block start
+    *///Testing block end
+    queue<double> Q;
+    Q.push(20.0);
+    Q.push(40.0);
+    Q.push(30.0);
+    pushpop(Q,1.0);
+    cout<<Q.front()<<endl;
+    Q.pop();
+    cout<<Q.front()<<endl;
+    Q.pop();
+    cout<<Q.front()<<endl;
+    Q.pop();
+
     return 0;
 }
  
