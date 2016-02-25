@@ -107,8 +107,8 @@ double ES2(vector<double> &D,vector<double> &IP, double alpha, vector<double> &F
     }    
     dev/=k;
     }
-    if((L+1)*(F[F.size()-1])-(IP[k+1])+(0.801*(pow((L+1)*dev,0.5)))>=0)
-        order=(L+1)*(F[F.size()-1])-(IP[k+1])+(0.801*(pow((L+1)*dev,0.5)));
+    if((L+1)*(F[F.size()-1])-(IP[k+1])+(ES23*(pow((L+1)*dev,0.5)))>=0)
+        order=(L+1)*(F[F.size()-1])-(IP[k+1])+(ES23*(pow((L+1)*dev,0.5)));
     else{
         order=0;}
     return order;//Self explanatory!!
@@ -132,8 +132,8 @@ double mean=0;
     }    
     dev/=k;
     }
-    if((L+1)*(F[k+2])-(IP[k+1])+(0.801*(pow((L+1)*dev,0.5)))>=0)
-        order=(L+1)*(F[k+2])-(IP[k+1])+(0.801*(pow((L+1)*dev,0.5)));
+    if((L+1)*(F[k+2])-(IP[k+1])+(ES23*(pow((L+1)*dev,0.5)))>=0)
+        order=(L+1)*(F[k+2])-(IP[k+1])+(ES23*(pow((L+1)*dev,0.5)));
     else{
         order=0;}
     return order;//Self explanatory!!
