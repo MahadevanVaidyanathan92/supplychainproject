@@ -316,8 +316,6 @@ int main(){
         R.Order.push_back(ES12(R.Demand,R.IP,alpha,R.Forecast,i));        
        i++;
     }
-//   int l=7; 
-//        cout<<"Demand ="<<R.Demand[l]<<", Order ="<<R.Order[l]<<", Received = "<<R.Received[l]<<", IP = "<<R.IP[l]<<", Forecast ="<<R.Forecast[l]<<", Sent = "<<R.Sent[l]<<", OHI ="<<R.OHI[l]<<endl;
         fM<<alpha<<"\t";
         for(int r=0;r<=2000;r++){
             M.Totalinv.push_back(M.Backorder[r]+M.OHI[r]);
